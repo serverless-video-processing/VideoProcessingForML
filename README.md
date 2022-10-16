@@ -1,5 +1,7 @@
 # VideoProcessingForML
 
+## Installing Dependencies:
+
 `conda create -n virt python=3.9`
 
 `conda activate virt`
@@ -9,3 +11,8 @@
 If you encounter some error, try:
 
 `conda install -c conda-forge ffmpeg`
+
+
+## Running:
+
+`python process.py`
