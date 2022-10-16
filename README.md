@@ -5,3 +5,7 @@
 `conda activate virt`
 
 `pip install -r requirements.txt`
+
+If you encounter some error, try:
+
+`conda install -c conda-forge ffmpeg`
