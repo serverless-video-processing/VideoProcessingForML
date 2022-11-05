@@ -1,6 +1,6 @@
 import wget
 import moviepy.editor as mp
-import moviepy.video.fx.all.crop as mp_crop
+import moviepy.video as mp_vid
 
 def download(url_link):
     filename = wget.download(url_link)
@@ -17,7 +17,7 @@ def scaleDown(filename):
 def crop(filename):
     outputFilename = filename +"_cropped"
     stream = mp.VideoFileClip(filename+".mp4")
-    stream = mp_crop(stream, 256, 256, 256//2, 256//2)
+    stream = mp_vid.fx.all.crop(stream, 256, 256, 256//2, 256//2)
     # Stage IV: Saving
     stream.write_videofile(outputFilename+".mp4")
 
