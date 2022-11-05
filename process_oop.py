@@ -1,7 +1,7 @@
 import wget
-import ffmpeg
 import moviepy.editor as mp
 from memory_profiler import profile
+import moviepy.video.fx.all.crop as mp_crop
 
 @profile
 def download(url_link):
@@ -20,12 +20,10 @@ def scaleDown(filename):
 @profile
 def crop(filename):
     outputFilename = filename +"_cropped"
-    stream = ffmpeg.input(filename+".mp4")
-    stream = ffmpeg.crop(stream, 50, 50, 256, 256)
+    stream = mp.VideoFileClip(filename+".mp4")
+    stream = mp_crop(stream, 256, 256, 256//2, 256//2)
     # Stage IV: Saving
-    stream = ffmpeg.output(stream, outputFilename+".mp4")
-    ffmpeg.run(stream)
-
+    stream.write_videofile(outputFilename+".mp4")
 
 @profile
 def pipeline():
