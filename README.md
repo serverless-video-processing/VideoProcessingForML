@@ -8,11 +8,6 @@
 
 `pip install -r requirements.txt`
 
-If you encounter some error, try:
-
-`conda install -c conda-forge ffmpeg`
-
-
 ## Running:
 
-`python process.py`
+`python process_serverless.py`
