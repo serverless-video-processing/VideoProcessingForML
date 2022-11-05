@@ -3,50 +3,58 @@ import moviepy.editor as mp
 import moviepy.video as mp_vid
 import boto3
 import botocore
+import os
 
-BUCKET_NAME = 'test_video' # replace with your bucket name
-KEY = 'ElephantsDream.mp4' # replace with your object key
+BUCKET_NAME = 'ffmpeg-profile' # replace with your bucket name
+KEY = 'ElephantsDream' # replace with your object key
 
-def download_s3():
+def read_from_s3(filename):
     s3 = boto3.resource('s3')
     bucket = s3.Bucket(BUCKET_NAME)
     for object in bucket.objects.all():
         key = object.key
-        body = object.get()['Body'].read()
         print(key)
-        print(body)
-        break
+        if key == filename+".mp4":
+            body = object.get()['Body'].read()
+            #print(type(body))
+            with open(filename + ".mp4", "wb") as binary_file:
+                binary_file.write(body)
+            return filename
+    return ""
 
-def download(url_link):
-    filename = wget.download(url_link)
-    filename = filename[:-4]
-    return filename
+def write_to_s3(filename):
+    with open(filename+".mp4", "rb") as f:
+        string = f.read()
+    encoded_string = string
+    s3 = boto3.resource("s3")
+    s3.Bucket(BUCKET_NAME).put_object(Key=filename+".mp4", Body=encoded_string)
 
 def scaleDown(filename):
-    clip = mp.VideoFileClip(filename+".mp4")
+    filename=read_from_s3(filename)
+    clip = mp.VideoFileClip(filename + ".mp4")
     clip_resized = clip.resize(height=360) #(width/height ratio is conserved)
     outputFilename = filename + "_resized"
     clip_resized.write_videofile(outputFilename+".mp4")
+    write_to_s3(outputFilename)
     return outputFilename
 
 def crop(filename):
-    outputFilename = filename +"_cropped"
+    filename=read_from_s3(filename)
     stream = mp.VideoFileClip(filename+".mp4")
-    stream = mp_vid.fx.all.crop(stream, 256, 256, 256//2, 256//2)
+    outputFilename = filename + "_cropped"
+    mp_vid.fx.all.crop(stream, 256, 256, 256//2, 256//2)
     # Stage IV: Saving
     stream.write_videofile(outputFilename+".mp4")
+    write_to_s3(outputFilename)
 
 def pipeline():
-    # Stage I: Downloading the Video
-    url_link= 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4'
-    filename = download(url_link)
 
-    # Stage II: Scaling Down the video
-    scaledDownFilename = scaleDown(filename)
+    # Stage I: Scaling Down the video
+    scaledDownFilename = scaleDown(KEY)
 
-    # Stage III+IV: Cropping the Video and saving it using ffmpeg
+    # Stage II: Cropping the Video
     crop(scaledDownFilename)
 
 if __name__=="__main__":
-    # pipeline()
-    download_s3()
+    os.chdir("tmp/")
+    pipeline()
