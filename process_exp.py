@@ -1,8 +1,6 @@
-import wget
 import moviepy.editor as mp
 import moviepy.video as mp_vid
 import boto3
-import botocore
 import os
 
 BUCKET_NAME = 'ffmpeg-profile' # replace with your bucket name
