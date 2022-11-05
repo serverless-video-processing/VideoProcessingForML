@@ -6,6 +6,8 @@ import os
 BUCKET_NAME = 'ffmpeg-profile' # replace with your bucket name
 KEY = 'ElephantsDream' # replace with your object key
 LOGO = 'logo'
+RESIZE = 180
+CROP = 128
 
 def read_from_s3(filename, ext):
     s3 = boto3.resource('s3')
@@ -31,7 +33,7 @@ def write_to_s3(filename, ext):
 def scaleDown(filename):
     filename=read_from_s3(filename, ".mp4")
     clip = mp.VideoFileClip(filename + ".mp4")
-    clip_resized = clip.resize(height=180) #(width/height ratio is conserved)
+    clip_resized = clip.resize(height=RESIZE) #(width/height ratio is conserved)
     outputFilename = filename + "_resized"
     clip_resized.write_videofile(outputFilename+".mp4")
     write_to_s3(outputFilename, ".mp4")
@@ -41,7 +43,7 @@ def crop(filename):
     filename=read_from_s3(filename, ".mp4")
     stream = mp.VideoFileClip(filename+".mp4")
     outputFilename = filename + "_cropped"
-    mp_vid.fx.all.crop(stream, 128, 128, 128//2, 128//2)
+    mp_vid.fx.all.crop(stream, CROP, CROP, CROP//2, CROP//2)
     # Stage IV: Saving
     stream.write_videofile(outputFilename+".mp4")
     write_to_s3(outputFilename, ".mp4")
