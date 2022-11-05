@@ -1,7 +1,22 @@
 import wget
 import moviepy.editor as mp
 import moviepy.video as mp_vid
-    
+import boto3
+import botocore
+
+BUCKET_NAME = 'test_video' # replace with your bucket name
+KEY = 'ElephantsDream.mp4' # replace with your object key
+
+def download_s3():
+    s3 = boto3.resource('s3')
+    bucket = s3.Bucket(BUCKET_NAME)
+    for object in bucket.objects.all():
+        key = object.key
+        body = object.get()['Body'].read()
+        print(key)
+        print(body)
+        break
+
 def download(url_link):
     filename = wget.download(url_link)
     filename = filename[:-4]
@@ -33,4 +48,5 @@ def pipeline():
     crop(scaledDownFilename)
 
 if __name__=="__main__":
-    pipeline()
+    # pipeline()
+    download_s3()
